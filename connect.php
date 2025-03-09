@@ -23,4 +23,5 @@ if ($conn->connect_error) {
 setTimeout(function() {
     document.getElementById('connectionMessage').style.display = 'none';
 }, 3000);
+
 </script>
