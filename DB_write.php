@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // เช็คว่ามีการรับไฟล์ภาพหรือไม่
         if (isset($_FILES['image']['tmp_name'])) {
-            $image = file_get_contents($_FILES['image']['tmp_name']);  // อ่านไฟล์ภาพจาก POST request
+            $image = file_get_contents($_FILES['image']['tmp_name']);  // อ่านไฟล์ภาพจาก POST request.
 
             // สร้างการเชื่อมต่อฐานข้อมูล
             $conn = new mysqli($servername, $username, $password, $dbname);
