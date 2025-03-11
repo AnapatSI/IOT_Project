@@ -4,49 +4,40 @@ include 'connect.php';
 // Keep this API Key value to be compatible with the ESP32 code provided in the project page. 
 $api_key_value = "tPmAT5Ab3j7F9";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $api_key = test_input($_POST["api_key"]);
-    if ($api_key == $api_key_value) {
+// ตรวจสอบว่าได้รับข้อมูล API Key และรูปภาพจาก POST request
+if (isset($_POST['api_key']) && isset($_POST['image']) && isset($_POST['box_percentage']) && isset($_POST['box_status'])) {
+    $apiKey = $_POST['api_key'];
+    $imageData = $_POST['image'];
+    $boxPercentage = intval($_POST['box_percentage']);
+    $boxStatus = intval($_POST['box_status']);
 
-        // เช็คว่ามีการรับไฟล์ภาพหรือไม่
-        if (isset($_FILES['image']['tmp_name'])) {
-            $image = file_get_contents($_FILES['image']['tmp_name']);  // อ่านไฟล์ภาพจาก POST request.
+    // ตรวจสอบ API Key
+    $validApiKey = "tPmAT5Ab3j7F9"; // ใส่ API Key ที่ใช้จริง
+    if ($apiKey === $validApiKey) {
+        
+        // แปลง Base64 เป็นรูปภาพ
+        $imageData = base64_decode($imageData);
 
-            // สร้างการเชื่อมต่อฐานข้อมูล
-            $conn = new mysqli($servername, $username, $password, $dbname);
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
-
-            // SQL เพื่อบันทึกข้อมูลภาพลงใน Table
-            $sql = "INSERT INTO box_images (image) VALUES (?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $image);  // "s" สำหรับข้อมูลประเภท string
-            if ($stmt->execute()) {
-                echo "Image uploaded successfully!";
-            } else {
-                echo "Error uploading image: " . $stmt->error;
-            }
-
-            // ปิดการเชื่อมต่อฐานข้อมูล
-            $stmt->close();
-            $conn->close();
+        // บันทึกลงในฐานข้อมูลเป็น MediumBLOB
+        $stmt = $conn->prepare("INSERT INTO box_data (box_image, box_percentage, box_status) VALUES (?, ?, ?)");
+        $stmt->bind_param("bii", $imageData, $boxPercentage, $boxStatus);
+        
+        // ดำเนินการบันทึกข้อมูล
+        if ($stmt->execute()) {
+            echo "Image uploaded successfully!";
         } else {
-            echo "No image received.";
+            echo "Failed to upload image: " . $stmt->error;
         }
-
+        
+        // ปิดการเชื่อมต่อฐานข้อมูล
+        $stmt->close();
     } else {
-        echo "Wrong API Key provided.";
+        echo "Invalid API Key!";
     }
 } else {
-    echo "No data posted with HTTP POST.";
+    echo "Required fields are missing!";
 }
 
-// ฟังก์ชั่นเพื่อล้างข้อมูลที่รับมาจาก POST
-function test_input($data) {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-    return $data;
-}
+// ปิดการเชื่อมต่อฐานข้อมูล
+$conn->close();
 ?>
