@@ -271,7 +271,7 @@ if ($filter_status != 'all') {
     <!-- Header -->
     <header class="dashboard-header">
         <div class="container text-center">
-            <h1 class="dashboard-title"><i class="fas fa-box-open me-2"></i>ระบบตรวจสอบความเสียหาย</h1>
+            <h1 class="dashboard-title"><i class="fas fa-box-open me-2"></i>ระบบตรวจสอบความเสียหายของพัสดุ</h1>
             <p class="dashboard-subtitle">แสดงข้อมูลภาพถ่ายและสถานะของกล่องสินค้า</p>
         </div>
     </header>
