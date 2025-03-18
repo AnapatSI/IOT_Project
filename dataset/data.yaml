@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 3
+names: ['box', 'hole', 'wet']
+
+roboflow:
+  workspace: project-021f5
+  project: detect_damage
+  version: 1
+  license: Private
+  url: https://universe.roboflow.com/project-021f5/detect_damage/dataset/1
