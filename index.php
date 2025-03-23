@@ -264,6 +264,18 @@ if ($filter_status != 'all') {
                 margin-bottom: 15px;
             }
         }
+
+        a[href="?status=accepted"].active {
+            background-color: #27ae60;
+            border-color: #27ae60;
+            color: white;
+        }
+
+        a[href="?status=rejected"].active {
+            background-color: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -271,7 +283,7 @@ if ($filter_status != 'all') {
     <!-- Header -->
     <header class="dashboard-header">
         <div class="container text-center">
-            <h1 class="dashboard-title"><i class="fas fa-box-open me-2"></i>ระบบตรวจสอบความเสียหายของพัสดุ</h1>
+            <h1 class="dashboard-title"><i class="fas fa-box-open me-2"></i>ระบบตรวจสอบความเสียหาย</h1>
             <p class="dashboard-subtitle">แสดงข้อมูลภาพถ่ายและสถานะของกล่องสินค้า</p>
         </div>
     </header>
@@ -337,9 +349,10 @@ if ($filter_status != 'all') {
         <div class="card mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center flex-wrap">
-                    <h5 class="mb-3 mb-md-0"><i class="fas fa-filter me-2"></i>กรองข้อมูล</h5>
+                <h5 class="mb-3 mb-md-0" style="background: linear-gradient(135deg, #0a2463, #1e3a8a); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 600;"><i class="fas fa-filter me-2"></i>กรองข้อมูล</h5>
                     <div>
-                        <a href="?status=all" class="btn filter-btn <?php echo $filter_status == 'all' ? 'active' : ''; ?>">
+                        <a href="?status=all" class="btn filter-btn <?php echo $filter_status == 'all' ? 'active' : ''; ?>" 
+                        style="<?php echo $filter_status == 'all' ? 'background: linear-gradient(135deg, #0a2463, #1e3a8a); color: white;' : 'background: #e5e7eb; color: #4b5563;'; ?>">
                             ทั้งหมด
                         </a>
                         <a href="?status=accepted" class="btn filter-btn <?php echo $filter_status == 'accepted' ? 'active' : ''; ?>">
@@ -356,7 +369,7 @@ if ($filter_status != 'all') {
         <!-- ตารางข้อมูล -->
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title"><i class="fas fa-table me-2"></i>ข้อมูลกล่องสินค้า</h5>
+                <h5 class="card-title" style="background: linear-gradient(135deg, #0a2463, #1e3a8a); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 600;"><i class="fas fa-table me-2"></i>ข้อมูลกล่องสินค้า</h5>
                 <span class="badge bg-primary"><?php echo $total_records; ?> รายการ</span>
             </div>
             <div class="card-body">
@@ -385,7 +398,13 @@ if ($filter_status != 'all') {
                                             $imageSrc = "data:image/jpeg;base64," . $imageData;
                                             ?>
                                             <img src="<?php echo $imageSrc; ?>" class="image-preview" alt="Box Image" 
-                                                 data-bs-toggle="modal" data-bs-target="#imageModal<?php echo $row['boxID']; ?>">
+                                                 data-bs-toggle="modal" data-bs-target="#imageModalGlobal"
+                                                 data-id="<?php echo $row['boxID']; ?>"
+                                                 data-image="<?php echo $imageSrc; ?>"
+                                                 data-percentage="<?php echo $row['box_percentage']; ?>"
+                                                 data-status="<?php echo $row['box_status']; ?>"
+                                                 data-status-text="<?php echo ($row['box_status'] == 1) ? 'ยอมรับ ✅' : 'ปฏิเสธ ❌'; ?>"
+                                                 data-date="<?php echo $row['created_at']; ?>">
                                         </td>
                                         <td>
                                             <div class="percentage-text"><?php echo $row['box_percentage']; ?>%</div>
@@ -409,39 +428,18 @@ if ($filter_status != 'all') {
                                             ?>
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-primary" 
-                                                    data-bs-toggle="modal" data-bs-target="#imageModal<?php echo $row['boxID']; ?>">
+                                            <button type="button" class="btn btn-sm btn-primary view-details" 
+                                                    data-bs-toggle="modal" data-bs-target="#imageModalGlobal"
+                                                    data-id="<?php echo $row['boxID']; ?>"
+                                                    data-image="<?php echo $imageSrc; ?>"
+                                                    data-percentage="<?php echo $row['box_percentage']; ?>"
+                                                    data-status="<?php echo $row['box_status']; ?>"
+                                                    data-status-text="<?php echo ($row['box_status'] == 1) ? 'ยอมรับ ✅' : 'ปฏิเสธ ❌'; ?>"
+                                                    data-date="<?php echo $row['created_at']; ?>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </td>
                                     </tr>
-                                    
-                                    <!-- Modal for image preview -->
-                                    <div class="modal fade" id="imageModal<?php echo $row['boxID']; ?>" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">รายละเอียดกล่อง #<?php echo $row['boxID']; ?></h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body text-center">
-                                                    <img src="<?php echo $imageSrc; ?>" class="modal-img img-fluid" alt="Box Image">
-                                                    <div class="mt-3">
-                                                        <p class="mb-1"><strong>เปอร์เซ็นต์ความเสียหาย:</strong> <?php echo $row['box_percentage']; ?>%</p>
-                                                        <p class="mb-1"><strong>สถานะ:</strong> 
-                                                            <span class="status-badge status-<?php echo $row['box_status']; ?>">
-                                                                <?php echo ($row['box_status'] == 1) ? "ยอมรับ ✅" : "ปฏิเสธ ❌"; ?>
-                                                            </span>
-                                                        </p>
-                                                        <p class="mb-1"><strong>วันที่อัปโหลด:</strong> <?php echo $row['created_at']; ?></p>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
@@ -458,34 +456,57 @@ if ($filter_status != 'all') {
                 
                 <!-- Pagination -->
                 <?php if ($total_pages > 1): ?>
-                <div class="d-flex justify-content-center mt-4">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination">
-                            <?php if ($page > 1): ?>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page-1; ?>&status=<?php echo $filter_status; ?>" aria-label="Previous">
-                                        <i class="fas fa-chevron-left"></i>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <li class="page-item <?php echo ($page == $i) ? 'active' : ''; ?>">
-                                    <a class="page-link" href="?page=<?php echo $i; ?>&status=<?php echo $filter_status; ?>"><?php echo $i; ?></a>
-                                </li>
-                            <?php endfor; ?>
-                            
-                            <?php if ($page < $total_pages): ?>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page+1; ?>&status=<?php echo $filter_status; ?>" aria-label="Next">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </nav>
-                </div>
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                <?php if ($page > 1): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<?php echo $page-1; ?>&status=<?php echo $filter_status; ?>" aria-label="Previous">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                                
+                                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                    <li class="page-item <?php echo ($page == $i) ? 'active' : ''; ?>">
+                                        <a class="page-link" href="?page=<?php echo $i; ?>&status=<?php echo $filter_status; ?>"><?php echo $i; ?></a>
+                                    </li>
+                                <?php endfor; ?>
+                                
+                                <?php if ($page < $total_pages): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<?php echo $page+1; ?>&status=<?php echo $filter_status; ?>" aria-label="Next">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </nav>
+                    </div>
                 <?php endif; ?>
+            </div>
+        </div>
+        
+        <!-- Single Modal for image preview -->
+        <div class="modal fade" id="imageModalGlobal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">รายละเอียดกล่อง</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img id="modalImage" src="" class="modal-img img-fluid" alt="Box Image">
+                        <div class="mt-3">
+                            <p class="mb-1"><strong>เปอร์เซ็นต์ความเสียหาย:</strong> <span id="modalPercentage"></span>%</p>
+                            <p class="mb-1"><strong>สถานะ:</strong> <span id="modalStatus"></span></p>
+                            <p class="mb-1"><strong>วันที่อัปโหลด:</strong> <span id="modalDate"></span></p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -497,5 +518,61 @@ if ($filter_status != 'all') {
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS for modal functionality -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // ฟังก์ชันสำหรับทั้งปุ่มและรูปภาพที่จะเปิด modal
+    function setupModalTriggers() {
+        // เลือกทั้งรูปภาพและปุ่มดูรายละเอียด
+        const triggers = document.querySelectorAll('.image-preview, .view-details');
+        const modalElement = document.getElementById('imageModalGlobal');
+        const bsModal = new bootstrap.Modal(modalElement);
+        
+        // จัดการกับเหตุการณ์เมื่อ modal ถูกซ่อน
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            // ทำให้แน่ใจว่า backdrop ถูกลบออกและคืนค่าการใช้งานของหน้าหลัก
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+        });
+        
+        triggers.forEach(trigger => {
+            trigger.addEventListener('click', function(event) {
+                // ป้องกันการกระทำอื่นๆ
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // รับข้อมูลจาก data attributes
+                const boxId = this.getAttribute('data-id');
+                const imageSrc = this.getAttribute('data-image');
+                const percentage = this.getAttribute('data-percentage');
+                const status = this.getAttribute('data-status');
+                const statusText = this.getAttribute('data-status-text');
+                const date = this.getAttribute('data-date');
+                
+                // อัปเดต modal ด้วยข้อมูลที่ได้รับ
+                document.getElementById('modalTitle').textContent = 'รายละเอียดกล่อง #' + boxId;
+                document.getElementById('modalImage').src = imageSrc;
+                document.getElementById('modalPercentage').textContent = percentage;
+                
+                const statusElement = document.getElementById('modalStatus');
+                statusElement.textContent = statusText;
+                statusElement.className = 'status-badge status-' + status;
+                
+                document.getElementById('modalDate').textContent = date;
+                
+                // เปิด modal
+                bsModal.show();
+                });
+            });
+        }
+        
+        // เรียกใช้ฟังก์ชัน
+        setupModalTriggers();
+    });
+    </script>
 </body>
 </html>

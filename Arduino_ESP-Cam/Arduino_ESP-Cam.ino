@@ -4,9 +4,9 @@
 #include <HTTPClient.h>
 
 // WiFi Credentials
-const char* ssid = "YOUR_SSID";
-const char* password = "YOUR_PASSWORD";
-const char* serverUrl = "http://yourserver.com/upload.php";  // เปลี่ยนเป็น URL ของเซิร์ฟเวอร์
+const char* ssid = "Axf";
+const char* password = "86428642";
+const char* serverUrl = "https://angsila.informatics.buu.ac.th/~66160402/IOT_Project/upload.php";  // เปลี่ยนเป็น URL ของเซิร์ฟเวอร์
 
 // กำหนดขา Ultrasonic
 #define TRIG_PIN 12
